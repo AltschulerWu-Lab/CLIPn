@@ -17,7 +17,7 @@ from clipn import clipn
 2. We packed the curated datasets into a pickle file. You can directly load the datasets by
 ```python
 import pickle
-with open('piclefile.pkl', 'rb') as f:
+with open('picklefile.pkl', 'rb') as f:
     data = pickle.load(f)
 
 X=data["X"]
