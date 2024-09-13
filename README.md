@@ -64,7 +64,7 @@ Ensure that you have the following Python packages installed:
 
 - `functions.simulation`
 - `matplotlib`
-- `CLIPn`
+- `clipn`
 - `umap`
 
 ### Steps
