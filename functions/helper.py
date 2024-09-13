@@ -12,13 +12,21 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import KFold
 
 
+def gen_color(cmap="tab10", label_n=10):
+    # Get the "tab10" colormap
+    cmap = plt.get_cmap(cmap)
+
+    colors = [cmap(i / (label_n - 1)) for i in range(label_n)]
+    return colors
+
+
 def recall_k(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50]):
-    '''
+    """
     Calculate recall@k for the given latent space and labels.
     Z_train: A dictionary of latent spaces for training datasets.
     Z_test: A dictionary of latent spaces for testing datasets.
 
-    '''
+    """
 
     Z_train_mat = np.array([])
     y_train_vec = np.array([])
@@ -26,13 +34,15 @@ def recall_k(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50]):
     y_test_vec = np.array([])
 
     for id in Z_train.keys():
-        Z_train_mat = np.vstack(
-            (Z_train_mat, Z_train[id])) if Z_train_mat.size else Z_train[id]
+        Z_train_mat = (
+            np.vstack((Z_train_mat, Z_train[id])) if Z_train_mat.size else Z_train[id]
+        )
         y_train_vec = np.concatenate((y_train_vec, y_train[id]))
 
     for id in Z_test.keys():
-        Z_test_mat = np.vstack(
-            (Z_test_mat, Z_test[id])) if Z_test_mat.size else Z_test[id]
+        Z_test_mat = (
+            np.vstack((Z_test_mat, Z_test[id])) if Z_test_mat.size else Z_test[id]
+        )
         y_test_vec = np.concatenate((y_test_vec, y_test[id]))
 
     # Calculate using inner product
@@ -46,7 +56,7 @@ def recall_k(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50]):
     recall = np.zeros(len(k))
 
     for i in range(len(k)):
-        recall[i] = np.any(compare[:, :k[i]], axis=1).sum() / compare.shape[0]
+        recall[i] = np.any(compare[:, : k[i]], axis=1).sum() / compare.shape[0]
     return recall
 
 
@@ -57,13 +67,15 @@ def recall_k_flex(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50]):
     y_test_vec = np.array([])
 
     for id in Z_train.keys():
-        Z_train_mat = np.vstack(
-            (Z_train_mat, Z_train[id])) if Z_train_mat.size else Z_train[id]
+        Z_train_mat = (
+            np.vstack((Z_train_mat, Z_train[id])) if Z_train_mat.size else Z_train[id]
+        )
         y_train_vec = np.concatenate((y_train_vec, y_train[id]))
 
     for id in Z_test.keys():
-        Z_test_mat = np.vstack(
-            (Z_test_mat, Z_test[id])) if Z_test_mat.size else Z_test[id]
+        Z_test_mat = (
+            np.vstack((Z_test_mat, Z_test[id])) if Z_test_mat.size else Z_test[id]
+        )
         y_test_vec = np.concatenate((y_test_vec, y_test[id]))
 
     # Calculate using inner product
@@ -73,17 +85,21 @@ def recall_k_flex(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50]):
     label_mat_train = np.vstack([y_train_vec] * Z_test_mat.shape[0])
     label_rank = np.take_along_axis(label_mat_train, rank, axis=1)
 
-    compare = ((label_rank == y_test_vec[:, np.newaxis]) +
-               (label_rank == (y_test_vec[:, np.newaxis] + 1)) +
-               (label_rank == (y_test_vec[:, np.newaxis] - 1)))
+    compare = (
+        (label_rank == y_test_vec[:, np.newaxis])
+        + (label_rank == (y_test_vec[:, np.newaxis] + 1))
+        + (label_rank == (y_test_vec[:, np.newaxis] - 1))
+    )
     recall = np.zeros(len(k))
 
     for i in range(len(k)):
-        recall[i] = np.any(compare[:, :k[i]], axis=1).sum() / compare.shape[0]
+        recall[i] = np.any(compare[:, : k[i]], axis=1).sum() / compare.shape[0]
     return recall
 
 
-def recall_k_flex_reconstruct(Z_train_mat, Z_test_mat, y_train_vec, y_test_vec, k=[1, 5, 10, 20, 50]):
+def recall_k_flex_reconstruct(
+    Z_train_mat, Z_test_mat, y_train_vec, y_test_vec, k=[1, 5, 10, 20, 50]
+):
     # Calculate using inner product
     sim = Z_test_mat @ Z_train_mat.T
 
@@ -91,13 +107,15 @@ def recall_k_flex_reconstruct(Z_train_mat, Z_test_mat, y_train_vec, y_test_vec, 
     label_mat_train = np.vstack([y_train_vec] * Z_test_mat.shape[0])
     label_rank = np.take_along_axis(label_mat_train, rank, axis=1)
 
-    compare = ((label_rank == y_test_vec[:, np.newaxis]) +
-               (label_rank == (y_test_vec[:, np.newaxis] + 1)) +
-               (label_rank == (y_test_vec[:, np.newaxis] - 1)))
+    compare = (
+        (label_rank == y_test_vec[:, np.newaxis])
+        + (label_rank == (y_test_vec[:, np.newaxis] + 1))
+        + (label_rank == (y_test_vec[:, np.newaxis] - 1))
+    )
     recall = np.zeros(len(k))
 
     for i in range(len(k)):
-        recall[i] = np.any(compare[:, :k[i]], axis=1).sum() / compare.shape[0]
+        recall[i] = np.any(compare[:, : k[i]], axis=1).sum() / compare.shape[0]
     return recall
 
 
@@ -117,7 +135,9 @@ def confusion_matrix(Z_train, y_train, Z_test, y_test):
     conf_mat = np.zeros([10, 10])
     for i in range(10):
         select_top = top_1_label[y_test_vec == i]
-        conf_mat[i, :] = np.bincount(select_top.astype(int), minlength=10) / select_top.size
+        conf_mat[i, :] = (
+            np.bincount(select_top.astype(int), minlength=10) / select_top.size
+        )
 
     return conf_mat
 
@@ -127,7 +147,7 @@ def confusion_matrix_eud(Z_train, y_train, Z_test, y_test):
     Z_test_mat, y_test_vec, ID_test = dict_to_array(Z_test, y_test)
 
     # Calculate using inner product
-    sim = pairwise_distances(Z_test_mat, Z_train_mat, metric='euclidean')
+    sim = pairwise_distances(Z_test_mat, Z_train_mat, metric="euclidean")
 
     rank = np.argsort(sim, axis=1)  # Enable descending ordering
     label_mat_train = np.vstack([y_train_vec] * Z_test_mat.shape[0])
@@ -138,7 +158,9 @@ def confusion_matrix_eud(Z_train, y_train, Z_test, y_test):
     conf_mat = np.zeros([10, 10])
     for i in range(10):
         select_top = top_1_label[y_test_vec == i]
-        conf_mat[i, :] = np.bincount(select_top.astype(int), minlength=10) / select_top.size
+        conf_mat[i, :] = (
+            np.bincount(select_top.astype(int), minlength=10) / select_top.size
+        )
 
     return conf_mat
 
@@ -150,13 +172,15 @@ def recall_k_by_category(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50])
     y_test_vec = np.array([])
 
     for id in Z_train.keys():
-        Z_train_mat = np.vstack(
-            (Z_train_mat, Z_train[id])) if Z_train_mat.size else Z_train[id]
+        Z_train_mat = (
+            np.vstack((Z_train_mat, Z_train[id])) if Z_train_mat.size else Z_train[id]
+        )
         y_train_vec = np.concatenate((y_train_vec, y_train[id]))
 
     for id in Z_test.keys():
-        Z_test_mat = np.vstack(
-            (Z_test_mat, Z_test[id])) if Z_test_mat.size else Z_test[id]
+        Z_test_mat = (
+            np.vstack((Z_test_mat, Z_test[id])) if Z_test_mat.size else Z_test[id]
+        )
         y_test_vec = np.concatenate((y_test_vec, y_test[id]))
 
     # Calculate using inner product
@@ -171,8 +195,10 @@ def recall_k_by_category(Z_train, Z_test, y_train, y_test, k=[1, 5, 10, 20, 50])
 
     for i in k:
         for j in np.unique(y_test_vec):
-            recall.loc[i, j] = np.any(
-                compare[y_test_vec == j, :i], axis=1).sum() / (y_test_vec == j).sum()
+            recall.loc[i, j] = (
+                np.any(compare[y_test_vec == j, :i], axis=1).sum()
+                / (y_test_vec == j).sum()
+            )
 
     return recall
 
@@ -184,8 +210,7 @@ def linear_classifier_f1(X_train: dict, y_train: dict, X_test: dict, y_test: dic
     combine_y_train = np.array([])
 
     for i in train_keys:
-        combined_X_train = np.concatenate(
-            [combined_X_train, X_train[i]], axis=0)
+        combined_X_train = np.concatenate([combined_X_train, X_train[i]], axis=0)
         combine_y_train = np.concatenate([combine_y_train, y_train[i]], axis=0)
 
     test_keys = list(X_test.keys())
@@ -194,29 +219,29 @@ def linear_classifier_f1(X_train: dict, y_train: dict, X_test: dict, y_test: dic
     combine_y_test = np.array([])
 
     for i in test_keys:
-        combined_X_test = np.concatenate(
-            [combined_X_test, X_test[i]], axis=0)
+        combined_X_test = np.concatenate([combined_X_test, X_test[i]], axis=0)
         combine_y_test = np.concatenate([combine_y_test, y_test[i]], axis=0)
 
     # Create a logistic regression classifier
-    clf = LogisticRegression(solver='liblinear', multi_class='auto')
+    clf = LogisticRegression(solver="liblinear", multi_class="auto")
 
     clf.fit(combined_X_train, combine_y_train)
     y_pred = clf.predict(combined_X_test)
-    f1 = f1_score(combine_y_test, y_pred, average='macro')
+    f1 = f1_score(combine_y_test, y_pred, average="macro")
 
     return f1
 
 
-def linear_classifier_f1_by_category(X_train: dict, y_train: dict, X_test: dict, y_test: dict):
+def linear_classifier_f1_by_category(
+    X_train: dict, y_train: dict, X_test: dict, y_test: dict
+):
     train_keys = list(X_train.keys())
 
     combined_X_train = np.empty((0, X_train[train_keys[0]].shape[1]))
     combine_y_train = np.array([])
 
     for i in train_keys:
-        combined_X_train = np.concatenate(
-            [combined_X_train, X_train[i]], axis=0)
+        combined_X_train = np.concatenate([combined_X_train, X_train[i]], axis=0)
         combine_y_train = np.concatenate([combine_y_train, y_train[i]], axis=0)
 
     test_keys = list(X_test.keys())
@@ -225,12 +250,11 @@ def linear_classifier_f1_by_category(X_train: dict, y_train: dict, X_test: dict,
     combine_y_test = np.array([])
 
     for i in test_keys:
-        combined_X_test = np.concatenate(
-            [combined_X_test, X_test[i]], axis=0)
+        combined_X_test = np.concatenate([combined_X_test, X_test[i]], axis=0)
         combine_y_test = np.concatenate([combine_y_test, y_test[i]], axis=0)
 
     # Create a logistic regression classifier
-    clf = LogisticRegression(solver='liblinear', multi_class='auto')
+    clf = LogisticRegression(solver="liblinear", multi_class="auto")
 
     clf.fit(combined_X_train, combine_y_train)
     y_pred = clf.predict(combined_X_test)
@@ -251,54 +275,64 @@ def umap_scatter(Z: dict, y: dict):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     dataset_n = len(np.unique(combine_dataID))
     label_n = len(np.unique(combine_label))
 
-    colors = mcp.gen_color(cmap="tab10", n=label_n)
+    colors = gen_color(cmap="tab10", n=label_n)
 
     color_mapping = dict(zip(range(label_n), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=dataset_n)
+    colors = gen_color(cmap="Accent", n=dataset_n)
 
     new_color_mapping = dict(zip(range(dataset_n), colors))
 
     embed = umap.UMAP().fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
 
     # First plot
     for label in plot_pd.label.unique():
-        ax1.scatter(plot_pd[plot_pd.label == label]['umap-1'],
-                    plot_pd[plot_pd.label == label]['umap-2'],
-                    c=color_mapping[int(label)], s=0.5)
+        ax1.scatter(
+            plot_pd[plot_pd.label == label]["umap-1"],
+            plot_pd[plot_pd.label == label]["umap-2"],
+            c=color_mapping[int(label)],
+            s=0.5,
+        )
     #
     # sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2', hue='label',
     #                 s=1, ax=ax1, legend=False)
-    ax1.axis('square')
-    ax1.set_title('Color by labels')
+    ax1.axis("square")
+    ax1.set_title("Color by labels")
 
     # Second plot
     for label in plot_pd.dataset.unique():
-        ax2.scatter(plot_pd[plot_pd.dataset == label]['umap-1'],
-                    plot_pd[plot_pd.dataset == label]['umap-2'],
-                    c=new_color_mapping[int(label)], s=0.5)
+        ax2.scatter(
+            plot_pd[plot_pd.dataset == label]["umap-1"],
+            plot_pd[plot_pd.dataset == label]["umap-2"],
+            c=new_color_mapping[int(label)],
+            s=0.5,
+        )
 
     # sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2',
     #                 hue='dataset', cmap='Dark2', s=1, ax=ax2, legend=False)
-    ax2.axis('square')
-    ax2.set_title('Color by datasets')
+    ax2.axis("square")
+    ax2.set_title("Color by datasets")
 
     # Adjust space between plots
     plt.subplots_adjust(wspace=0.3)
@@ -314,11 +348,11 @@ def pca_scatter(Z: dict, y: dict):
     combine_dataID = np.array([])
     train_ID = np.array([])
 
-    colors = mcp.gen_color(cmap="tab10", n=10)
+    colors = gen_color(cmap="tab10", n=10)
 
     color_mapping = dict(zip(range(10), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=10)
+    colors = gen_color(cmap="Accent", n=10)
 
     new_color_mapping = dict(zip(range(10), colors))
 
@@ -326,43 +360,53 @@ def pca_scatter(Z: dict, y: dict):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
     pca = PCA(n_components=2)
     embed = pca.fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
 
     # First plot
     for label in plot_pd.label.unique():
-        ax1.scatter(plot_pd[plot_pd.label == label]['umap-1'],
-                    plot_pd[plot_pd.label == label]['umap-2'],
-                    c=color_mapping[int(label)], s=0.5)
+        ax1.scatter(
+            plot_pd[plot_pd.label == label]["umap-1"],
+            plot_pd[plot_pd.label == label]["umap-2"],
+            c=color_mapping[int(label)],
+            s=0.5,
+        )
     #
     # sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2', hue='label',
     #                 s=1, ax=ax1, legend=False)
     # ax1.axis('square')
-    ax1.set_title('Color by labels')
+    ax1.set_title("Color by labels")
 
     # Second plot
     for label in plot_pd.dataset.unique():
-        ax2.scatter(plot_pd[plot_pd.dataset == label]['umap-1'],
-                    plot_pd[plot_pd.dataset == label]['umap-2'],
-                    c=new_color_mapping[int(label)], s=0.5)
+        ax2.scatter(
+            plot_pd[plot_pd.dataset == label]["umap-1"],
+            plot_pd[plot_pd.dataset == label]["umap-2"],
+            c=new_color_mapping[int(label)],
+            s=0.5,
+        )
 
     # sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2',
     #                 hue='dataset', cmap='Dark2', s=1, ax=ax2, legend=False)
     # ax2.axis('square')
-    ax2.set_title('Color by datasets')
+    ax2.set_title("Color by datasets")
 
     # Adjust space between plots
     plt.subplots_adjust(wspace=0.3)
@@ -378,11 +422,11 @@ def umap_scatter_highlight(Z: dict, y: dict, select_label):
     combine_dataID = np.array([])
     train_ID = np.array([])
 
-    colors = mcp.gen_color(cmap="tab10", n=10)
+    colors = gen_color(cmap="tab10", n=10)
 
     color_mapping = dict(zip(range(10), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=8)
+    colors = gen_color(cmap="Accent", n=8)
 
     new_color_mapping = dict(zip(range(8), colors))
 
@@ -390,47 +434,61 @@ def umap_scatter_highlight(Z: dict, y: dict, select_label):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     embed = umap.UMAP().fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
 
     # First plot
     for label in plot_pd.label.unique():
-        ax1.scatter(plot_pd[plot_pd.label == label]['umap-1'],
-                    plot_pd[plot_pd.label == label]['umap-2'],
-                    c=color_mapping[int(label)], s=0.5)
-    ax1.scatter(plot_pd[plot_pd.label == select_label]['umap-1'],
-                plot_pd[plot_pd.label == select_label]['umap-2'],
-                c='k', s=2, marker='^')
+        ax1.scatter(
+            plot_pd[plot_pd.label == label]["umap-1"],
+            plot_pd[plot_pd.label == label]["umap-2"],
+            c=color_mapping[int(label)],
+            s=0.5,
+        )
+    ax1.scatter(
+        plot_pd[plot_pd.label == select_label]["umap-1"],
+        plot_pd[plot_pd.label == select_label]["umap-2"],
+        c="k",
+        s=2,
+        marker="^",
+    )
     # sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2', hue='label',
     #                 s=1, ax=ax1, legend=False)
-    ax1.axis('square')
-    ax1.set_title('Color by labels')
+    ax1.axis("square")
+    ax1.set_title("Color by labels")
 
     # Second plot
     for label in plot_pd.dataset.unique():
-        ax2.scatter(plot_pd[plot_pd.dataset == label]['umap-1'],
-                    plot_pd[plot_pd.dataset == label]['umap-2'],
-                    c=new_color_mapping[int(label)], s=0.5)
+        ax2.scatter(
+            plot_pd[plot_pd.dataset == label]["umap-1"],
+            plot_pd[plot_pd.dataset == label]["umap-2"],
+            c=new_color_mapping[int(label)],
+            s=0.5,
+        )
     # ax2.scatter(plot_pd[plot_pd.dataset == select_label]['umap-1'],
     #             plot_pd[plot_pd.dataset == select_label]['umap-2'],
     #             c=new_color_mapping[int(select_label)], s=2, marker='^', edgecolors='w', linewidths=0.1)
     # sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2',
     #                 hue='dataset', cmap='Dark2', s=1, ax=ax2, legend=False)
-    ax2.axis('square')
-    ax2.set_title('Color by datasets')
+    ax2.axis("square")
+    ax2.set_title("Color by datasets")
 
     # Adjust space between plots
     plt.subplots_adjust(wspace=0.3)
@@ -446,11 +504,11 @@ def umap_scatter_save(Z: dict, y: dict, path: str):
     combine_dataID = np.array([])
     train_ID = np.array([])
 
-    colors = mcp.gen_color(cmap="tab10", n=10)
+    colors = gen_color(cmap="tab10", n=10)
 
     color_mapping = dict(zip(range(10), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=8)
+    colors = gen_color(cmap="Accent", n=8)
 
     new_color_mapping = dict(zip(range(8), colors))
 
@@ -458,18 +516,22 @@ def umap_scatter_save(Z: dict, y: dict, path: str):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     embed = umap.UMAP().fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     plt.figure(figsize=(5, 5))
@@ -479,13 +541,16 @@ def umap_scatter_save(Z: dict, y: dict, path: str):
         plot_pd_sub = plot_pd.iloc[test_index]
         # First plot
         for label in plot_pd_sub.label.unique():
-            plt.scatter(plot_pd_sub[plot_pd_sub.label == label]['umap-1'],
-                        plot_pd_sub[plot_pd_sub.label == label]['umap-2'],
-                        c=color_mapping[int(label)], s=0.2)
-    plt.axis('square')
-    plt.axis('off')
+            plt.scatter(
+                plot_pd_sub[plot_pd_sub.label == label]["umap-1"],
+                plot_pd_sub[plot_pd_sub.label == label]["umap-2"],
+                c=color_mapping[int(label)],
+                s=0.2,
+            )
+    plt.axis("square")
+    plt.axis("off")
     plt.tight_layout()
-    plt.savefig(path + '_labels.png', dpi=300)
+    plt.savefig(path + "_labels.png", dpi=300)
     # ax1.set_title('Color by labels')
 
     # Second plot
@@ -495,14 +560,17 @@ def umap_scatter_save(Z: dict, y: dict, path: str):
         plot_pd_sub = plot_pd.iloc[test_index]
         # First plot
         for label in plot_pd_sub.dataset.unique():
-            plt.scatter(plot_pd_sub[plot_pd_sub.dataset == label]['umap-1'],
-                        plot_pd_sub[plot_pd_sub.dataset == label]['umap-2'],
-                        c=new_color_mapping[int(label)], s=0.2)
+            plt.scatter(
+                plot_pd_sub[plot_pd_sub.dataset == label]["umap-1"],
+                plot_pd_sub[plot_pd_sub.dataset == label]["umap-2"],
+                c=new_color_mapping[int(label)],
+                s=0.2,
+            )
 
-    plt.axis('square')
-    plt.axis('off')
+    plt.axis("square")
+    plt.axis("off")
     plt.tight_layout()
-    plt.savefig(path + '_datasets.png', dpi=300)
+    plt.savefig(path + "_datasets.png", dpi=300)
 
 
 def umap_scatter_save_highlight(Z: dict, y: dict, path: str, label_highlight):
@@ -513,11 +581,11 @@ def umap_scatter_save_highlight(Z: dict, y: dict, path: str, label_highlight):
     combine_dataID = np.array([])
     train_ID = np.array([])
 
-    colors = mcp.gen_color(cmap="tab10", n=10)
+    colors = gen_color(cmap="tab10", n=10)
 
     color_mapping = dict(zip(range(10), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=8)
+    colors = gen_color(cmap="Accent", n=8)
 
     new_color_mapping = dict(zip(range(8), colors))
 
@@ -525,18 +593,22 @@ def umap_scatter_save_highlight(Z: dict, y: dict, path: str, label_highlight):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     embed = umap.UMAP().fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     plt.figure(figsize=(5, 5))
@@ -546,33 +618,43 @@ def umap_scatter_save_highlight(Z: dict, y: dict, path: str, label_highlight):
         plot_pd_sub = plot_pd.iloc[test_index]
         # First plot
         for label in plot_pd_sub.label.unique():
-            plt.scatter(plot_pd_sub[plot_pd_sub.label == label]['umap-1'],
-                        plot_pd_sub[plot_pd_sub.label == label]['umap-2'],
-                        c=color_mapping[int(label)], s=0.2)
-    plt.scatter(plot_pd[plot_pd.label == label_highlight]['umap-1'],
-                plot_pd[plot_pd.label == label_highlight]['umap-2'],
-                c='k', s=2, marker='^')
-    plt.axis('square')
-    plt.axis('off')
+            plt.scatter(
+                plot_pd_sub[plot_pd_sub.label == label]["umap-1"],
+                plot_pd_sub[plot_pd_sub.label == label]["umap-2"],
+                c=color_mapping[int(label)],
+                s=0.2,
+            )
+    plt.scatter(
+        plot_pd[plot_pd.label == label_highlight]["umap-1"],
+        plot_pd[plot_pd.label == label_highlight]["umap-2"],
+        c="k",
+        s=2,
+        marker="^",
+    )
+    plt.axis("square")
+    plt.axis("off")
     plt.tight_layout()
-    plt.savefig(path + '_labels.png', dpi=300)
+    plt.savefig(path + "_labels.png", dpi=300)
     # ax1.set_title('Color by labels')
 
     # Second plot
     plt.figure(figsize=(5, 5))
     for label in plot_pd.dataset.unique():
-        plt.scatter(plot_pd[plot_pd.dataset == label]['umap-1'],
-                    plot_pd[plot_pd.dataset == label]['umap-2'],
-                    c=new_color_mapping[int(label)], s=0.5)
+        plt.scatter(
+            plot_pd[plot_pd.dataset == label]["umap-1"],
+            plot_pd[plot_pd.dataset == label]["umap-2"],
+            c=new_color_mapping[int(label)],
+            s=0.5,
+        )
 
-    plt.axis('square')
-    plt.axis('off')
+    plt.axis("square")
+    plt.axis("off")
     plt.tight_layout()
-    plt.savefig(path + '_datasets.png', dpi=300)
+    plt.savefig(path + "_datasets.png", dpi=300)
 
 
 def label_freq(Z, y, n=100):
-    nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(Z)
+    nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm="ball_tree").fit(Z)
     distances, indices = nbrs.kneighbors(Z)
     nn_labels = y[indices[:, 1:]]
 
@@ -599,7 +681,8 @@ def dict_to_array(Z: dict, y: dict):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
 
     return combined_Z, combine_label, combine_dataID
 
@@ -643,9 +726,9 @@ def umap_scatter_train_test(Z: dict, y: dict, Z_test: dict, y_test: dict):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     id = list(Z_test.keys())
 
@@ -653,37 +736,65 @@ def umap_scatter_train_test(Z: dict, y: dict, Z_test: dict, y_test: dict):
         combined_Z = np.concatenate([combined_Z, Z_test[i]], axis=0)
         combine_label = np.concatenate([combine_label, y_test[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y_test[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['test'] * np.size(y_test[i])], axis=0)
+            [combine_dataID, np.ones_like(y_test[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["test"] * np.size(y_test[i])], axis=0)
 
     embed = umap.UMAP().fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label.astype(str),
-                            'dataset': combine_dataID.astype(str),
-                            'train': train_ID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label.astype(str),
+            "dataset": combine_dataID.astype(str),
+            "train": train_ID,
+        }
+    )
 
     # Create figure with 1 row, 2 columns
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(9, 3))
 
     # First plot
-    sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2',
-                    hue='label', cmap='tab10', s=1, ax=ax1, legend=False)
-    ax1.axis('square')
-    ax1.set_title('Color by labels')
+    sns.scatterplot(
+        data=plot_pd,
+        x="umap-1",
+        y="umap-2",
+        hue="label",
+        cmap="tab10",
+        s=1,
+        ax=ax1,
+        legend=False,
+    )
+    ax1.axis("square")
+    ax1.set_title("Color by labels")
 
     # Second plot
-    sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2',
-                    hue='dataset', cmap='Dark2', s=1, ax=ax2, legend=False)
-    ax2.axis('square')
-    ax2.set_title('Color by datasets')
+    sns.scatterplot(
+        data=plot_pd,
+        x="umap-1",
+        y="umap-2",
+        hue="dataset",
+        cmap="Dark2",
+        s=1,
+        ax=ax2,
+        legend=False,
+    )
+    ax2.axis("square")
+    ax2.set_title("Color by datasets")
 
     # Third plot
-    sns.scatterplot(data=plot_pd, x='umap-1', y='umap-2',
-                    hue='train', cmap='Dark2', s=1, ax=ax3, legend=False)
-    ax3.axis('square')
-    ax3.set_title('Color by train/test')
+    sns.scatterplot(
+        data=plot_pd,
+        x="umap-1",
+        y="umap-2",
+        hue="train",
+        cmap="Dark2",
+        s=1,
+        ax=ax3,
+        legend=False,
+    )
+    ax3.axis("square")
+    ax3.set_title("Color by train/test")
 
     # Adjust space between plots
     plt.subplots_adjust(wspace=0.3)
@@ -703,9 +814,9 @@ def pca_scatter_train_test(Z: dict, y: dict, Z_test: dict, y_test: dict):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     id = list(Z_test.keys())
 
@@ -713,18 +824,22 @@ def pca_scatter_train_test(Z: dict, y: dict, Z_test: dict, y_test: dict):
         combined_Z = np.concatenate([combined_Z, Z_test[i]], axis=0)
         combine_label = np.concatenate([combine_label, y_test[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y_test[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['test'] * np.size(y_test[i])], axis=0)
+            [combine_dataID, np.ones_like(y_test[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["test"] * np.size(y_test[i])], axis=0)
     pc = PCA(n_components=2)
     embed = pc.fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'PC-1': embed[:, 0],
-                            'PC-2': embed[:, 1],
-                            'label': combine_label.astype(str),
-                            'dataset': combine_dataID.astype(str),
-                            'train': train_ID})
+    plot_pd = pd.DataFrame(
+        {
+            "PC-1": embed[:, 0],
+            "PC-2": embed[:, 1],
+            "label": combine_label.astype(str),
+            "dataset": combine_dataID.astype(str),
+            "train": train_ID,
+        }
+    )
 
-    colors = mcp.gen_color(cmap="tab10", n=10)
+    colors = gen_color(cmap="tab10", n=10)
 
     color_mapping = dict(zip(range(10), colors))
 
@@ -732,22 +847,47 @@ def pca_scatter_train_test(Z: dict, y: dict, Z_test: dict, y_test: dict):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(9, 3))
 
     # First plot
-    sns.scatterplot(data=plot_pd, x='PC-1', y='PC-2',
-                    hue='label', hue_order=np.sort(plot_pd.label.unique()), cmap='tab10', s=1, ax=ax1, legend=False)
-    ax1.axis('square')
-    ax1.set_title('Color by labels')
+    sns.scatterplot(
+        data=plot_pd,
+        x="PC-1",
+        y="PC-2",
+        hue="label",
+        hue_order=np.sort(plot_pd.label.unique()),
+        cmap="tab10",
+        s=1,
+        ax=ax1,
+        legend=False,
+    )
+    ax1.axis("square")
+    ax1.set_title("Color by labels")
 
     # Second plot
-    sns.scatterplot(data=plot_pd, x='PC-1', y='PC-2',
-                    hue='dataset', cmap='Dark2', s=1, ax=ax2, legend=False)
-    ax2.axis('square')
-    ax2.set_title('Color by datasets')
+    sns.scatterplot(
+        data=plot_pd,
+        x="PC-1",
+        y="PC-2",
+        hue="dataset",
+        cmap="Dark2",
+        s=1,
+        ax=ax2,
+        legend=False,
+    )
+    ax2.axis("square")
+    ax2.set_title("Color by datasets")
 
     # Third plot
-    sns.scatterplot(data=plot_pd, x='PC-1', y='PC-2',
-                    hue='train', cmap='Dark2', s=1, ax=ax3, legend=False)
-    ax3.axis('square')
-    ax3.set_title('Color by train/test')
+    sns.scatterplot(
+        data=plot_pd,
+        x="PC-1",
+        y="PC-2",
+        hue="train",
+        cmap="Dark2",
+        s=1,
+        ax=ax3,
+        legend=False,
+    )
+    ax3.axis("square")
+    ax3.set_title("Color by train/test")
 
     # Adjust space between plots
     plt.subplots_adjust(wspace=0.3)
@@ -756,8 +896,20 @@ def pca_scatter_train_test(Z: dict, y: dict, Z_test: dict, y_test: dict):
 
 
 def pca_scatter_hypoxia(Z: dict, y: dict):
-    label_mapping = dict(zip(['Normoxia', 'Hypoxia_6h', 'Hypoxia_24h',
-                              'Hypoxia_48h', 'Hypoxia_72h', 'Hypoxia_6d', 'Hypoxia_10d'], range(7)))
+    label_mapping = dict(
+        zip(
+            [
+                "Normoxia",
+                "Hypoxia_6h",
+                "Hypoxia_24h",
+                "Hypoxia_48h",
+                "Hypoxia_72h",
+                "Hypoxia_6d",
+                "Hypoxia_10d",
+            ],
+            range(7),
+        )
+    )
 
     id = list(Z.keys())
 
@@ -766,13 +918,13 @@ def pca_scatter_hypoxia(Z: dict, y: dict):
     combine_dataID = np.array([])
     train_ID = np.array([])
 
-    color_1 = mcp.gen_color(cmap="winter_r", n=6)
-    color_2 = mcp.gen_color(cmap="Greys", n=3)
-    colors = [color_2[1]] + color_1[:3] + ['#00a6fb', '#0466c8', '#03045e']
+    color_1 = gen_color(cmap="winter_r", n=6)
+    color_2 = gen_color(cmap="Greys", n=3)
+    colors = [color_2[1]] + color_1[:3] + ["#00a6fb", "#0466c8", "#03045e"]
 
     color_mapping = dict(zip(range(10), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=6)
+    colors = gen_color(cmap="Accent", n=6)
 
     new_color_mapping = dict(zip(range(10), colors))
 
@@ -780,39 +932,49 @@ def pca_scatter_hypoxia(Z: dict, y: dict):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
     pca = PCA(n_components=2)
     embed = pca.fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
 
     # First plot
     for label in plot_pd.label.unique():
-        ax1.scatter(plot_pd[plot_pd.label == label]['umap-1'],
-                    plot_pd[plot_pd.label == label]['umap-2'],
-                    c=color_mapping[int(label)], s=0.5)
+        ax1.scatter(
+            plot_pd[plot_pd.label == label]["umap-1"],
+            plot_pd[plot_pd.label == label]["umap-2"],
+            c=color_mapping[int(label)],
+            s=0.5,
+        )
 
-    ax1.axis('square')
-    ax1.set_title('Color by labels')
+    ax1.axis("square")
+    ax1.set_title("Color by labels")
 
     # Second plot
     for label in plot_pd.dataset.unique():
-        ax2.scatter(plot_pd[plot_pd.dataset == label]['umap-1'],
-                    plot_pd[plot_pd.dataset == label]['umap-2'],
-                    c=new_color_mapping[int(label)], s=0.5)
+        ax2.scatter(
+            plot_pd[plot_pd.dataset == label]["umap-1"],
+            plot_pd[plot_pd.dataset == label]["umap-2"],
+            c=new_color_mapping[int(label)],
+            s=0.5,
+        )
 
-    ax2.axis('square')
-    ax2.set_title('Color by datasets')
+    ax2.axis("square")
+    ax2.set_title("Color by datasets")
 
     # Adjust space between plots
     plt.subplots_adjust(wspace=0.3)
@@ -821,8 +983,20 @@ def pca_scatter_hypoxia(Z: dict, y: dict):
 
 
 def pca_scatter_hypoxia_save(Z: dict, y: dict, path: str):
-    label_mapping = dict(zip(['Normoxia', 'Hypoxia_6h', 'Hypoxia_24h',
-                              'Hypoxia_48h', 'Hypoxia_72h', 'Hypoxia_6d', 'Hypoxia_10d'], range(7)))
+    label_mapping = dict(
+        zip(
+            [
+                "Normoxia",
+                "Hypoxia_6h",
+                "Hypoxia_24h",
+                "Hypoxia_48h",
+                "Hypoxia_72h",
+                "Hypoxia_6d",
+                "Hypoxia_10d",
+            ],
+            range(7),
+        )
+    )
 
     id = list(Z.keys())
 
@@ -831,13 +1005,13 @@ def pca_scatter_hypoxia_save(Z: dict, y: dict, path: str):
     combine_dataID = np.array([])
     train_ID = np.array([])
 
-    color_1 = mcp.gen_color(cmap="winter_r", n=6)
-    color_2 = mcp.gen_color(cmap="Greys", n=3)
-    colors = [color_2[1]] + color_1[:3] + ['#00a6fb', '#0466c8', '#03045e']
+    color_1 = gen_color(cmap="winter_r", n=6)
+    color_2 = gen_color(cmap="Greys", n=3)
+    colors = [color_2[1]] + color_1[:3] + ["#00a6fb", "#0466c8", "#03045e"]
 
     color_mapping = dict(zip(range(7), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=6)
+    colors = gen_color(cmap="Accent", n=6)
 
     new_color_mapping = dict(zip(range(10), colors))
 
@@ -845,51 +1019,73 @@ def pca_scatter_hypoxia_save(Z: dict, y: dict, path: str):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
     pca = PCA(n_components=2)
     embed = pca.fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'umap-1': embed[:, 0],
-                            'umap-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID})
+    plot_pd = pd.DataFrame(
+        {
+            "umap-1": embed[:, 0],
+            "umap-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+        }
+    )
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     plt.figure(figsize=(4, 4))
 
     # First plot
     for label in plot_pd.label.unique():
-        plt.scatter(plot_pd[plot_pd.label == label]['umap-1'],
-                    plot_pd[plot_pd.label == label]['umap-2'],
-                    c=color_mapping[int(label)], s=1)
+        plt.scatter(
+            plot_pd[plot_pd.label == label]["umap-1"],
+            plot_pd[plot_pd.label == label]["umap-2"],
+            c=color_mapping[int(label)],
+            s=1,
+        )
 
     # plt.axis('square')
-    plt.xlabel('PC-1')
-    plt.ylabel('PC-2')
+    plt.xlabel("PC-1")
+    plt.ylabel("PC-2")
     # plt.tight_layout()
-    plt.savefig(path + '_labels.png', dpi=300)
+    plt.savefig(path + "_labels.png", dpi=300)
 
     # Second plot
     plt.figure(figsize=(4, 4))
     for label in plot_pd.dataset.unique():
-        plt.scatter(plot_pd[plot_pd.dataset == label]['umap-1'],
-                    plot_pd[plot_pd.dataset == label]['umap-2'],
-                    c=new_color_mapping[int(label)], s=1)
+        plt.scatter(
+            plot_pd[plot_pd.dataset == label]["umap-1"],
+            plot_pd[plot_pd.dataset == label]["umap-2"],
+            c=new_color_mapping[int(label)],
+            s=1,
+        )
 
     # plt.axis('square')
-    plt.xlabel('PC-1')
-    plt.ylabel('PC-2')
+    plt.xlabel("PC-1")
+    plt.ylabel("PC-2")
     # plt.tight_layout()
-    plt.savefig(path + '_datasets.png', dpi=300)
+    plt.savefig(path + "_datasets.png", dpi=300)
 
 
 def pca_scatter_hypoxia_impute(Z: dict, y: dict, Z_test, y_test, path=None):
-    label_mapping = dict(zip(['Normoxia', 'Hypoxia_6h', 'Hypoxia_24h',
-                              'Hypoxia_48h', 'Hypoxia_72h', 'Hypoxia_6d', 'Hypoxia_10d'], range(7)))
+    label_mapping = dict(
+        zip(
+            [
+                "Normoxia",
+                "Hypoxia_6h",
+                "Hypoxia_24h",
+                "Hypoxia_48h",
+                "Hypoxia_72h",
+                "Hypoxia_6d",
+                "Hypoxia_10d",
+            ],
+            range(7),
+        )
+    )
 
     id = list(Z.keys())
 
@@ -902,9 +1098,9 @@ def pca_scatter_hypoxia_impute(Z: dict, y: dict, Z_test, y_test, path=None):
         combined_Z = np.concatenate([combined_Z, Z[i]], axis=0)
         combine_label = np.concatenate([combine_label, y[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['train'] * np.size(y[i])], axis=0)
+            [combine_dataID, np.ones_like(y[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["train"] * np.size(y[i])], axis=0)
 
     id = list(Z_test.keys())
 
@@ -912,66 +1108,75 @@ def pca_scatter_hypoxia_impute(Z: dict, y: dict, Z_test, y_test, path=None):
         combined_Z = np.concatenate([combined_Z, Z_test[i]], axis=0)
         combine_label = np.concatenate([combine_label, y_test[i]], axis=0)
         combine_dataID = np.concatenate(
-            [combine_dataID, np.ones_like(y_test[i]) * i], axis=0)
-        train_ID = np.concatenate(
-            [train_ID, ['test'] * np.size(y_test[i])], axis=0)
+            [combine_dataID, np.ones_like(y_test[i]) * i], axis=0
+        )
+        train_ID = np.concatenate([train_ID, ["test"] * np.size(y_test[i])], axis=0)
     pc = PCA(n_components=2)
     embed = pc.fit_transform(combined_Z)
-    plot_pd = pd.DataFrame({'PC-1': embed[:, 0],
-                            'PC-2': embed[:, 1],
-                            'label': combine_label,
-                            'dataset': combine_dataID,
-                            'train': train_ID})
+    plot_pd = pd.DataFrame(
+        {
+            "PC-1": embed[:, 0],
+            "PC-2": embed[:, 1],
+            "label": combine_label,
+            "dataset": combine_dataID,
+            "train": train_ID,
+        }
+    )
 
-    color_1 = mcp.gen_color(cmap="winter_r", n=6)
-    color_2 = mcp.gen_color(cmap="Greys", n=3)
-    colors = [color_2[1]] + color_1[:3] + ['#00a6fb', '#0466c8', '#03045e']
+    color_1 = gen_color(cmap="winter_r", n=6)
+    color_2 = gen_color(cmap="Greys", n=3)
+    colors = [color_2[1]] + color_1[:3] + ["#00a6fb", "#0466c8", "#03045e"]
 
     color_mapping = dict(zip(range(7), colors))
 
-    colors = mcp.gen_color(cmap="Accent", n=6)
+    colors = gen_color(cmap="Accent", n=6)
 
     new_color_mapping = dict(zip(range(10), colors))
 
-    plot_pd['Color_label'] = plot_pd['label'].map(color_mapping)
-    plot_pd['Color_dataset'] = plot_pd['dataset'].map(new_color_mapping)
+    plot_pd["Color_label"] = plot_pd["label"].map(color_mapping)
+    plot_pd["Color_dataset"] = plot_pd["dataset"].map(new_color_mapping)
 
     # Create figure with 1 row, 2 columns
     plt.figure(figsize=(4, 4))
 
     # First plot
     for label in plot_pd.label.unique():
-        plt.scatter(plot_pd[(plot_pd.label == label) & (plot_pd.train == 'train')]['PC-1'],
-                    plot_pd[(plot_pd.label == label) & (plot_pd.train == 'train')]['PC-2'],
-                    c=color_mapping[int(label)], s=5)
+        plt.scatter(
+            plot_pd[(plot_pd.label == label) & (plot_pd.train == "train")]["PC-1"],
+            plot_pd[(plot_pd.label == label) & (plot_pd.train == "train")]["PC-2"],
+            c=color_mapping[int(label)],
+            s=5,
+        )
 
-    plot_pd_test = plot_pd[(plot_pd.train == 'test')]
+    plot_pd_test = plot_pd[(plot_pd.train == "test")]
 
-    plt.scatter(plot_pd_test['PC-1'],
-                plot_pd_test['PC-2'],
-                c='salmon', s=5)
-    plt.xlabel('PC-1')
-    plt.ylabel('PC-2')
+    plt.scatter(plot_pd_test["PC-1"], plot_pd_test["PC-2"], c="salmon", s=5)
+    plt.xlabel("PC-1")
+    plt.ylabel("PC-2")
     plt.grid(False)
     if path is None:
         plt.show()
     else:
-        print('save')
-        plt.savefig(path + '_labels.png', dpi=300)
+        print("save")
+        plt.savefig(path + "_labels.png", dpi=300)
 
     # Second plot
     plt.figure(figsize=(4, 4))
     for label in plot_pd.dataset.unique():
-        plt.scatter(plot_pd[plot_pd.dataset == label]['PC-1'],
-                    plot_pd[plot_pd.dataset == label]['PC-2'],
-                    c=new_color_mapping[int(label)], s=5)
+        plt.scatter(
+            plot_pd[plot_pd.dataset == label]["PC-1"],
+            plot_pd[plot_pd.dataset == label]["PC-2"],
+            c=new_color_mapping[int(label)],
+            s=5,
+        )
 
-    plt.xlabel('PC-1')
-    plt.ylabel('PC-2')
+    plt.xlabel("PC-1")
+    plt.ylabel("PC-2")
     plt.grid(False)
     if path is None:
         plt.show()
     else:
-        plt.savefig(path + '_datasets.png', dpi=300)
+        plt.savefig(path + "_datasets.png", dpi=300)
+
 
 # %%

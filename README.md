@@ -51,7 +51,7 @@ pip install CLIPn
 To start using CLIP<sup>n</sup>, import the package in your Python environment:
 
 ```python
-from CLIPn import CLIPn
+from clipn import CLIPn
 ```
 
 ### Running the CLIP<sup>n</sup> Model
