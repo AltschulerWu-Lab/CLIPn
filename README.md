@@ -155,5 +155,3 @@ The processed experimental data used in the study are available at [Zenodo](http
 ## License
 
 CLIP<sup>n</sup> is released under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-For more information and updates, please visit the [CLIP<sup>n</sup> GitHub repository](https://github.com/clipn).
