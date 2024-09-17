@@ -149,7 +149,7 @@ Scripts to reproduce main results from the paper be found in [Reproduce_scripts]
 
 ## Data Availability
 
-The processed experimental data used in the study are available at [Data](Data).  Experimental information is provided in the [Data](Data/README.md) directory.
+The processed experimental data used in the study are available at [Zenodo](10.5281/zenodo.13773117). 
 
 ## License
 
