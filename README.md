@@ -43,7 +43,7 @@ with `Ubuntu OS (20.04.6 LTS)`, `Nvidia Titan X GPU` and `Xeon E5 CPU`.
 You can install CLIP<sup>n</sup> via pip:
 
 ```bash
-pip install CLIPn
+pip install clipn
 ```
 
 ## Getting Started
