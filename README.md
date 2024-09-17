@@ -141,11 +141,12 @@ Ensure that you have the following Python packages installed:
 
 ## Reproducing Results
 
-Scripts to reproduce main results from the paper be found in [Reproduce_scripts](Reproduce_scripts) directory. The scripts include:
+Scripts to obtain main results from the paper be found in [Reproduce_scripts](Reproduce_scripts) directory. The scripts include:
 
-- [Integration from simulated data.](Reproduce_scripts/Simulation)
-- [Integration from multiple hypoxia screens.](Reproduce_scripts/Hypoxia_screen)
-- [Integration from curated compound screens across 20 years.](Reproduce_scripts/Compound_screen)
+- [Integration from simulated data.](scripts/Simulation)
+- [Integration from multiple hypoxia screens.](scripts/Hypoxia)
+- [Integration from curated compound screens across 20 years.](scripts/HCS_datasets)
+- [Integration from transcript + image profiles.](scripts/Expression)
 
 ## Data Availability
 
