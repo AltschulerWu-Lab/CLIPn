@@ -5,7 +5,6 @@ import pandas as pd
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
-from mycolorpy import colorlist as mcp
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import pairwise_distances
 from sklearn.decomposition import PCA
