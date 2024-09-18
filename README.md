@@ -128,8 +128,7 @@ Ensure that you have the following Python packages installed:
 
    ```python
    from functions.helper import *
-   
-   Z = clipn.predict(X)
+ 
    umap_scatter(Z, y)
    ```
 
