@@ -1,4 +1,4 @@
-# CLIP<sup>n</sup>: Scaling up functional prediction for uncharacterized small molecules through integration of diverse high-content screening resources
+# Transitive prediction of small molecule function through alignment of high-content screening resources 
 
 CLIP<sup>n</sup> is a Python package for integrating phenotypic screening data generated from diverse experimental setups. It provides tools for data
 integration for reference compound profiles and predictions for uncharacterized compounds.
