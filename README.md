@@ -149,7 +149,7 @@ Scripts to obtain main results from the paper be found in [`scripts`](Reproduce_
 
 ## Data Availability
 
-The processed experimental data used in the study are available at [Zenodo](https://zenodo.org/uploads/13773117). 
+The processed experimental data used in the study are available at [Zenodo](https://doi.org/10.5281/zenodo.13773116). 
 
 ## License
 
