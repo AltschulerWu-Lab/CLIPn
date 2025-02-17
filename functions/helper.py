@@ -11,11 +11,11 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import KFold
 
 
-def gen_color(cmap="tab10", label_n=10):
+def gen_color(cmap="tab10", n=10):
     # Get the "tab10" colormap
     cmap = plt.get_cmap(cmap)
 
-    colors = [cmap(i / (label_n - 1)) for i in range(label_n)]
+    colors = [cmap(i / (n - 1)) for i in range(n)]
     return colors
 
 
