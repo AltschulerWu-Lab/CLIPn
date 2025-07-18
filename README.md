@@ -3,6 +3,8 @@
 CLIP<sup>n</sup> is a Python package for integrating phenotypic screening data generated from diverse experimental setups. It provides tools for data
 integration for reference compound profiles and predictions for uncharacterized compounds.
 
+Published in [Nat Biotech 2025](https://doi.org/10.1038/s41587-025-02729-2)
+
 ![Overview of CLIP<sup>n</sup>](Figure1.png)
 ****Figure 1***: ***(a)*** Examples of three distinct experiments profiled using different cell assays,
 hardware/software
@@ -151,6 +153,11 @@ Scripts to obtain main results from the paper be found in [`scripts`](scripts) d
 
 The processed experimental data used in the study are available at [Zenodo](https://doi.org/10.5281/zenodo.13773116). 
 
+## Citation
+Bao, F., Li, L., Hammerlindl, H. et al. Transitive prediction of small-molecule function through alignment of high-content screening resources. Nat Biotechnol (2025). https://doi.org/10.1038/s41587-025-02729-2
+
 ## License
 
 CLIP<sup>n</sup> is released under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
